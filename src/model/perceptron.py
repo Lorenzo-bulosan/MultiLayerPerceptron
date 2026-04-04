@@ -31,8 +31,10 @@ class Perceptron(BaseModel):
             raise TypeError(f"Weights is expected to be a numpy array, instead its a: {type(weights).__name__}")
         if not isinstance(bias, np.ndarray):
             raise TypeError(f"Bias is expected to be a numpy array, instead its a: {type(bias).__name__}")
-        if len(inputs) != len(weights):
+        if weights.ndim == 1 and len(inputs) != len(weights):
             raise ValueError(f"Inputs length ({len(inputs)}) must match weights length ({len(weights)})")
+        if weights.ndim == 2 and len(inputs) != weights.shape[0]:
+            raise ValueError(f"Inputs length ({len(inputs)}) must match weights rows ({weights.shape[0]})")
 
         # feedforward algorithm
         try:
@@ -75,7 +77,8 @@ class Perceptron(BaseModel):
             gradient = dl_da * da_dz
 
             # update weights: move opposite to gradient
-            weights = weights - learning_rate * gradient * inputs
+            # outer product of inputs and gradient to get weight matrix update
+            weights = weights - learning_rate * np.outer(inputs, gradient)
 
             # update bias
             bias = bias - learning_rate * gradient
