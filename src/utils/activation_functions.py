@@ -3,7 +3,7 @@ import numpy as np
 
 class ActivationFunctions:
 
-    def __innit__(self, activation_function_id: ActivationTypeIds, leaky_relu_alpha = 0.01):
+    def __init__(self, activation_function_id: ActivationTypeIds, leaky_relu_alpha = 0.01):
         self.activation_function_id = activation_function_id
         self.leaky_relu_alpha = leaky_relu_alpha # common default number https://apxml.com/courses/introduction-to-deep-learning/chapter-2-activation-functions-architecture/relu-variants
     
