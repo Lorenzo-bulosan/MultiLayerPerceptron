@@ -29,12 +29,12 @@ class ActivationFunctions:
                 # pros: no vanishing gradient problem
                 # cons: can suffer from dying ReLU (neurons can get stuck at 0 and never recover and never fire), exploding gradients
                 case ActivationTypeIds.RELU:
-                    result = max(0, z)
+                    result = np.maximum(0, z)
 
                 # pros: does not suffer from dying ReLU, no vanishing gradient problem
                 # cons: exploding gradients
-                case ActivationTypeIds.LEAKY_RELU:                    
-                    result = max(self.leaky_relu_alpha * z, z) # gradient is never fully 0
+                case ActivationTypeIds.LEAKY_RELU:
+                    result = np.maximum(self.leaky_relu_alpha * z, z) # gradient is never fully 0
 
                 # pros: zero-centered output (-1 to 1), stronger gradients than sigmoid
                 # cons: vanishing gradient for large/small z (saturates at -1 and 1)
@@ -72,11 +72,11 @@ class ActivationFunctions:
 
                 # d/dz relu(z) = 1 if z > 0, else 0
                 case ActivationTypeIds.RELU:
-                    result = 1.0 if z > 0 else 0.0
+                    result = np.where(z > 0, 1.0, 0.0)
 
                 # d/dz leaky_relu(z) = 1 if z > 0, else alpha
                 case ActivationTypeIds.LEAKY_RELU:
-                    result = 1.0 if z > 0 else self.leaky_relu_alpha
+                    result = np.where(z > 0, 1.0, self.leaky_relu_alpha)
 
                 # d/dz tanh(z) = 1 - tanh(z)^2
                 case ActivationTypeIds.TANH:
