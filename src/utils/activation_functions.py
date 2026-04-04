@@ -12,7 +12,7 @@ class ActivationFunctions:
         Compute output of activation function for the logit, pre-activation value z
         """
 
-        if not isinstance(logit, (int, float)):
+        if not isinstance(logit, (int, float, np.integer, np.floating, np.ndarray)):
             raise TypeError(f"Expected a number, got type {type(logit).__name__}")
 
         result = 0
@@ -56,7 +56,7 @@ class ActivationFunctions:
         Used during backpropagation to calculate gradients.
         """
 
-        if not isinstance(logit, (int, float)):
+        if not isinstance(logit, (int, float, np.integer, np.floating, np.ndarray)):
             raise TypeError(f"Expected a number, got type {type(logit).__name__}")
 
         result = 0
