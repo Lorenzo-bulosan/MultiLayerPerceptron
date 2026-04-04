@@ -35,7 +35,7 @@ class Perceptron:
 
         try:
             # weighted sum
-            weighted_sum = np.dot(self.x, self.weights)
+            weighted_sum = np.dot(self.inputs, self.weights)
 
             # calculate logit or pre-activation, normally denoted by z
             logit = weighted_sum + self.bias
