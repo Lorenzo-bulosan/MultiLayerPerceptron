@@ -32,37 +32,37 @@ class TestFeedforwardValidation:
     def test_none_inputs_raises(self):
         p = Perceptron()
         with pytest.raises(ValueError, match="cannot be None"):
-            p.feedforward(None, np.array([1.0]), 0.0)
+            p.feedforward(None, np.array([1.0]), np.array([0.0]))
 
     def test_none_weights_raises(self):
         p = Perceptron()
         with pytest.raises(ValueError, match="cannot be None"):
-            p.feedforward(np.array([1.0]), None, 0.0)
+            p.feedforward(np.array([1.0]), None, np.array([0.0]))
+
+    def test_none_bias_raises(self):
+        p = Perceptron()
+        with pytest.raises(ValueError, match="cannot be None"):
+            p.feedforward(np.array([1.0]), np.array([0.5]), None)
 
     def test_inputs_not_numpy_raises(self):
         p = Perceptron()
         with pytest.raises(TypeError, match="Inputs is expected to be a numpy array"):
-            p.feedforward([1.0, 2.0], np.array([0.5, 0.5]), 0.0)
+            p.feedforward([1.0, 2.0], np.array([0.5, 0.5]), np.array([0.0]))
 
     def test_weights_not_numpy_raises(self):
         p = Perceptron()
         with pytest.raises(TypeError, match="Weights is expected to be a numpy array"):
-            p.feedforward(np.array([1.0, 2.0]), [0.5, 0.5], 0.0)
+            p.feedforward(np.array([1.0, 2.0]), [0.5, 0.5], np.array([0.0]))
+
+    def test_bias_not_numpy_raises(self):
+        p = Perceptron()
+        with pytest.raises(TypeError, match="Bias is expected to be a numpy array"):
+            p.feedforward(np.array([1.0]), np.array([0.5]), "bad")
 
     def test_mismatched_lengths_raises(self):
         p = Perceptron()
         with pytest.raises(ValueError, match="must match weights length"):
-            p.feedforward(np.array([1.0, 2.0]), np.array([0.5]), 0.0)
-
-    def test_bias_not_number_raises(self):
-        p = Perceptron()
-        with pytest.raises(TypeError, match="Bias must be a number"):
-            p.feedforward(np.array([1.0]), np.array([0.5]), "bad")
-
-    def test_bias_accepts_int(self):
-        p = Perceptron()
-        result = p.feedforward(np.array([1.0]), np.array([0.5]), 1)
-        assert isinstance(result, float)
+            p.feedforward(np.array([1.0, 2.0]), np.array([0.5]), np.array([0.0]))
 
 
 # --- Feedforward tests ---
@@ -75,7 +75,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([5.0, 8.0])
             weights = np.array([0.6, 0.4])
             p = Perceptron(ActivationTypeIds.SIGMOID)
-            result = p.feedforward(inputs, weights, -4.0)
+            result = p.feedforward(inputs, weights, np.array([-4.0]))
             assert result == pytest.approx(0.9002, abs=0.001)
 
         def test_negative_preactivation(self):
@@ -83,7 +83,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([1.0, 3.0])
             weights = np.array([0.6, 0.4])
             p = Perceptron(ActivationTypeIds.SIGMOID)
-            result = p.feedforward(inputs, weights, -4.0)
+            result = p.feedforward(inputs, weights, np.array([-4.0]))
             assert result == pytest.approx(0.0998, abs=0.001)
 
         def test_zero_value_preactivation(self):
@@ -91,7 +91,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([0.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.SIGMOID)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(0.5, abs=0.001)
 
     class TestRelu:
@@ -100,7 +100,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([2.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 2.0
 
         def test_relu_negative(self):
@@ -108,7 +108,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([-3.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 0.0
 
         def test_relu_zero(self):
@@ -116,7 +116,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([0.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 0.0
 
         def test_relu_large_input(self):
@@ -124,7 +124,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([1000.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 1000.0
 
     class TestLeakyRelu:
@@ -133,7 +133,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([2.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.LEAKY_RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 2.0
 
         def test_leaky_relu_negative(self):
@@ -141,7 +141,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([-3.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.LEAKY_RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(-0.03, abs=0.001)
 
         def test_leaky_relu_zero(self):
@@ -149,7 +149,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([0.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.LEAKY_RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == 0.0
 
         def test_leaky_relu_small_negative(self):
@@ -157,7 +157,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([-0.001])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.LEAKY_RELU)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(-0.00001, abs=0.000001)
 
     class TestTanh:
@@ -166,7 +166,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([1.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.TANH)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(0.7616, abs=0.001)
 
         def test_negative_preactivation(self):
@@ -174,7 +174,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([-1.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.TANH)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(-0.7616, abs=0.001)
 
         def test_zero_preactivation(self):
@@ -182,7 +182,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([0.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.TANH)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(0.0, abs=0.001)
 
         def test_large_positive_saturation(self):
@@ -190,7 +190,7 @@ class TestPerceptronFeedforward:
             inputs = np.array([10.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.TANH)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(1.0, abs=0.001)
 
         def test_large_negative_saturation(self):
@@ -198,5 +198,5 @@ class TestPerceptronFeedforward:
             inputs = np.array([-10.0])
             weights = np.array([1.0])
             p = Perceptron(ActivationTypeIds.TANH)
-            result = p.feedforward(inputs, weights, 0.0)
+            result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(-1.0, abs=0.001)

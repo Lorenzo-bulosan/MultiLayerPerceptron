@@ -15,24 +15,24 @@ class Perceptron(BaseModel):
     
     def feedforward(
         self,
-        inputs: npt.NDArray[np.float64], 
+        inputs: npt.NDArray[np.float64],
         weights: npt.NDArray[np.float64],
-        bias: np.float64
+        bias: npt.NDArray[np.float64]
     ):
         """
         Computes forward pass by calculating the weighted sum of inputs + bias and applies activation function
         """
         # validate inputs
-        if inputs is None or weights is None:
-            raise ValueError("Inputs and weights cannot be None")
+        if inputs is None or weights is None or bias is None:
+            raise ValueError("Inputs, weights, and bias cannot be None")
         if not isinstance(inputs, np.ndarray):
             raise TypeError(f"Inputs is expected to be a numpy array, instead its a: {type(inputs).__name__}")
         if not isinstance(weights, np.ndarray):
-            raise TypeError(f"Weights is expected to be a numpy array, instead its a: {type(weights).__name__}")        
+            raise TypeError(f"Weights is expected to be a numpy array, instead its a: {type(weights).__name__}")
+        if not isinstance(bias, np.ndarray):
+            raise TypeError(f"Bias is expected to be a numpy array, instead its a: {type(bias).__name__}")
         if len(inputs) != len(weights):
             raise ValueError(f"Inputs length ({len(inputs)}) must match weights length ({len(weights)})")
-        if not isinstance(bias, (int, float)):
-            raise TypeError(f"Bias must be a number, got {type(bias).__name__}")
 
         # feedforward algorithm
         try:
@@ -53,30 +53,35 @@ class Perceptron(BaseModel):
 
     def train_weights(
         self,
-        inputs: npt.NDArray[np.float64], 
+        inputs: npt.NDArray[np.float64],
         weights: npt.NDArray[np.float64],
-        bias: np.float64,        
+        bias: npt.NDArray[np.float64],
         prediction: npt.NDArray[np.float64],
-        expected_output: np.float64,
+        expected_output: npt.NDArray[np.float64],
         learning_rate: np.float64
     ):
         """
         Finding the weights needed to correct the error by computing the gradient and moving on the opposite direction at a given learning rate
         """
-        # dL/da — how much the loss changes with the prediction
-        dl_da = -2 * (expected_output - prediction)
+        try:
+            # dL/da — how much the loss changes with the prediction
+            dl_da = -2 * (expected_output - prediction)
 
-        # da/dz — how much the prediction changes with the pre-activation
-        logit = np.dot(inputs, weights) + bias
-        da_dz = self.activation_function.derivative(logit)
+            # da/dz — how much the prediction changes with the pre-activation
+            logit = np.dot(inputs, weights) + bias
+            da_dz = self.activation_function.derivative(logit)
 
-        # combined gradient: dL/dz = dL/da * da/dz
-        gradient = dl_da * da_dz
+            # combined gradient: dL/dz = dL/da * da/dz
+            gradient = dl_da * da_dz
 
-        # update weights: move opposite to gradient
-        weights = weights - learning_rate * gradient * inputs
+            # update weights: move opposite to gradient
+            weights = weights - learning_rate * gradient * inputs
 
-        # update bias
-        bias = bias - learning_rate * gradient
+            # update bias
+            bias = bias - learning_rate * gradient
 
-        return weights, bias
+            return weights, bias
+
+        except Exception as e:
+            print(f"Error when training weights: {e}")
+            raise
