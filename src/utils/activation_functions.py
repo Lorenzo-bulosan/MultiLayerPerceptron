@@ -16,21 +16,28 @@ class ActivationFunctions:
             raise TypeError(f"Expected a number, got type {type(logit).__name__}")
 
         result = 0
-        z = logit # for readability when comparing with math formulas
+        z = logit # z for readability when comparing with math formulas
 
         try:
             match self.activation_function_id:
     
+                # pros: outputs between 0 and 1 (useful for probabilities)
+                # cons: vanishing gradient for large/small z (saturates at 0 and 1), outputs not zero-centered
                 case ActivationTypeIds.SIGMOID:
                     result = 1 / (1 + np.exp(-z))
 
+                # pros: no vanishing gradient problem
+                # cons: can suffer from dying ReLU (neurons can get stuck at 0 and never recover and never fire), exploding gradients
                 case ActivationTypeIds.RELU:
                     result = max(0, z)
 
-                case ActivationTypeIds.LEAKY_RELU:
-                    # normal relu suffer from dying ReLU as neuron can get stuck on 0 and never recover and never fire
+                # pros: does not suffer from dying ReLU, no vanishing gradient problem
+                # cons: exploding gradients
+                case ActivationTypeIds.LEAKY_RELU:                    
                     result = max(self.leaky_relu_alpha * z, z) # gradient is never fully 0
 
+                # pros: zero-centered output (-1 to 1), stronger gradients than sigmoid
+                # cons: vanishing gradient for large/small z (saturates at -1 and 1)
                 case ActivationTypeIds.TANH:
                     result = np.tanh(z)
 
