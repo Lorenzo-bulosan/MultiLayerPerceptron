@@ -49,3 +49,44 @@ class ActivationFunctions:
         except Exception as e:
             print(f"Error applying activation function: {e}")
             raise
+
+    def derivative(self, logit: float) -> float:
+        """
+        Compute the derivative of the activation function for the logit, pre-activation value z.
+        Used during backpropagation to calculate gradients.
+        """
+
+        if not isinstance(logit, (int, float)):
+            raise TypeError(f"Expected a number, got type {type(logit).__name__}")
+
+        result = 0
+        z = logit
+
+        try:
+            match self.activation_function_id:
+
+                # d/dz sigmoid(z) = sigmoid(z) * (1 - sigmoid(z))
+                case ActivationTypeIds.SIGMOID:
+                    s = 1 / (1 + np.exp(-z))
+                    result = s * (1 - s)
+
+                # d/dz relu(z) = 1 if z > 0, else 0
+                case ActivationTypeIds.RELU:
+                    result = 1.0 if z > 0 else 0.0
+
+                # d/dz leaky_relu(z) = 1 if z > 0, else alpha
+                case ActivationTypeIds.LEAKY_RELU:
+                    result = 1.0 if z > 0 else self.leaky_relu_alpha
+
+                # d/dz tanh(z) = 1 - tanh(z)^2
+                case ActivationTypeIds.TANH:
+                    result = 1 - np.tanh(z) ** 2
+
+                case _:
+                    raise ValueError(f"Unknown activation function: {self.activation_function_id}")
+
+            return result
+
+        except Exception as e:
+            print(f"Error computing derivative: {e}")
+            raise

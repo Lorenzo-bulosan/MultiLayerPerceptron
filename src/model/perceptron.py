@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 from utils.activation_function_ids import ActivationTypeIds
 from utils.activation_functions import ActivationFunctions
 from model.base_model import BaseModel
@@ -12,7 +13,12 @@ class Perceptron(BaseModel):
         # todo: add validation for activation type
         self.activation_function = ActivationFunctions(activation_type)
     
-    def feedforward(self, inputs, weights, bias) -> float:
+    def feedforward(
+        self,
+        inputs: npt.NDArray[np.float64], 
+        weights: npt.NDArray[np.float64],
+        bias: np.float64
+    ):
         """
         Computes forward pass by calculating the weighted sum of inputs + bias and applies activation function
         """
@@ -45,4 +51,32 @@ class Perceptron(BaseModel):
             print(f"Error in feedforward: {e}")
             raise # to not silently fail
 
-    
+    def train_weights(
+        self,
+        inputs: npt.NDArray[np.float64], 
+        weights: npt.NDArray[np.float64],
+        bias: np.float64,        
+        prediction: npt.NDArray[np.float64],
+        expected_output: np.float64,
+        learning_rate: np.float64
+    ):
+        """
+        Finding the weights needed to correct the error by computing the gradient and moving on the opposite direction at a given learning rate
+        """
+        # dL/da — how much the loss changes with the prediction
+        dl_da = -2 * (expected_output - prediction)
+
+        # da/dz — how much the prediction changes with the pre-activation
+        logit = np.dot(inputs, weights) + bias
+        da_dz = self.activation_function.derivative(logit)
+
+        # combined gradient: dL/dz = dL/da * da/dz
+        gradient = dl_da * da_dz
+
+        # update weights: move opposite to gradient
+        weights = weights - learning_rate * gradient * inputs
+
+        # update bias
+        bias = bias - learning_rate * gradient
+
+        return weights, bias

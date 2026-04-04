@@ -14,14 +14,15 @@ class BaseModel(ABC):
         """ Must implement a feedforward"""
         pass
 
-    # @abstractmethod
-    # def train_weights(
-    #     self,
-    #     inputs: npt.NDArray[np.float64], 
-    #     weights: npt.NDArray[np.float64],
-    #     bias: np.float64,        
-    #     error: np.float64,
-    #     learning_rate: np.float64
-    # ):
-    #     """ Must implement a method to update weights"""
-    #     pass
+    @abstractmethod
+    def train_weights(
+        self,
+        inputs: npt.NDArray[np.float64], 
+        weights: npt.NDArray[np.float64],
+        bias: np.float64,        
+        prediction: npt.NDArray[np.float64],
+        expected_output: np.float64,
+        learning_rate: np.float64
+    ):
+        """ Must implement a method to update weights"""
+        pass
