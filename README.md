@@ -1,27 +1,35 @@
-# Create virtual environment
+# Prepare environment
+### Create virtual environment
 python -m venv venv
 
-# Windows git bash
+### Windows git bash
 source venv/Scripts/activate
 
-# macOS/Linux
+### macOS/Linux
 source venv/bin/activate
 
-# Install requirements
+### Install requirements
 pip install -r requirements.txt
 
-# Save dependencies
+### Save dependencies
 pip freeze > requirements.txt
 
-# Deactivate
+### Deactivate
 deactivate
 
-# Running tests
+### Running tests
 source venv/Scripts/activate
 pip install -r requirements.txt
 bash run_tests.sh           
 
-## Insights
+# VS Code tips
+### Opening markdown preview 
+Ctrl + Shift + V
+
+### Opening both markdown preview side by side with source file
+Ctrl + K V
+
+# Insights
 
 ### Activation Functions
 
