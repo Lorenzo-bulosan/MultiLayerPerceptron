@@ -43,8 +43,11 @@ def train(
             # get current prediction by forward passing through a model
             prediction = model.feedforward(inputs, weights, bias)
 
-            # update weights to adjust for this error at a given training rate
-            weights, bias = model.train_weights(inputs, weights, bias, prediction, expected_output, learning_rate)
+            # compute gradients via backpropagation
+            weight_grads, bias_grads = model.backpropagate(inputs, weights, bias, prediction, expected_output)
+
+            # update weights using optimizer
+            weights, bias = model.optimize_weights(weights, bias, weight_grads, bias_grads, learning_rate)
 
             # track total loss
             error = np.sum((expected_output - prediction)**2)
