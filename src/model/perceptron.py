@@ -53,17 +53,16 @@ class Perceptron(BaseModel):
             print(f"Error in feedforward: {e}")
             raise # to not silently fail
 
-    def train_weights(
+    def backpropagate(
         self,
         inputs: npt.NDArray[np.float64],
         weights: npt.NDArray[np.float64],
         bias: npt.NDArray[np.float64],
         prediction: npt.NDArray[np.float64],
-        expected_output: npt.NDArray[np.float64],
-        learning_rate: np.float64
+        expected_output: npt.NDArray[np.float64]
     ):
         """
-        Finding the weights needed to correct the error by computing the gradient and moving on the opposite direction at a given learning rate
+        Compute gradients using the chain rule (backpropagation)
         """
         try:
             # dL/da — how much the loss changes with the prediction
@@ -76,15 +75,32 @@ class Perceptron(BaseModel):
             # combined gradient: dL/dz = dL/da * da/dz
             gradient = dl_da * da_dz
 
-            # update weights: move opposite to gradient
-            # outer product of inputs and gradient to get weight matrix update
-            weights = weights - learning_rate * np.outer(inputs, gradient)
+            # weight gradients: outer product of inputs and gradient
+            weight_grads = np.outer(inputs, gradient)
+            bias_grads = gradient
 
-            # update bias
-            bias = bias - learning_rate * gradient
+            return weight_grads, bias_grads
 
+        except Exception as e:
+            print(f"Error in backpropagate: {e}")
+            raise
+
+    def optimize_weights(
+        self,
+        weights: npt.NDArray[np.float64],
+        bias: npt.NDArray[np.float64],
+        weight_grads: npt.NDArray[np.float64],
+        bias_grads: npt.NDArray[np.float64],
+        learning_rate: np.float64
+    ):
+        """
+        Update weights using SGD: move opposite to gradient at a given learning rate
+        """
+        try:
+            weights = weights - learning_rate * weight_grads
+            bias = bias - learning_rate * bias_grads
             return weights, bias
 
         except Exception as e:
-            print(f"Error when training weights: {e}")
+            print(f"Error in optimize_weights: {e}")
             raise

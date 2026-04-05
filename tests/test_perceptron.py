@@ -200,3 +200,111 @@ class TestPerceptronFeedforward:
             p = Perceptron(ActivationTypeIds.TANH)
             result = p.feedforward(inputs, weights, np.array([0.0]))
             assert result == pytest.approx(-1.0, abs=0.001)
+
+
+# --- Backpropagate tests ---
+
+class TestPerceptronBackpropagate:
+
+    def test_returns_weight_and_bias_gradients(self):
+        """backpropagate should return weight_grads and bias_grads"""
+        inputs = np.array([1.0, 2.0])
+        weights = np.array([[0.5], [0.5]])
+        bias = np.array([0.0])
+        prediction = np.array([0.8])
+        expected_output = np.array([1.0])
+        p = Perceptron(ActivationTypeIds.SIGMOID)
+        weight_grads, bias_grads = p.backpropagate(inputs, weights, bias, prediction, expected_output)
+        assert weight_grads.shape == weights.shape
+        assert bias_grads.shape == bias.shape
+
+    def test_zero_error_produces_zero_gradients(self):
+        """When prediction equals expected output, gradients should be zero"""
+        inputs = np.array([1.0, 2.0])
+        weights = np.array([[0.5], [0.5]])
+        bias = np.array([0.0])
+        prediction = np.array([1.0])
+        expected_output = np.array([1.0])
+        p = Perceptron(ActivationTypeIds.RELU)
+        weight_grads, bias_grads = p.backpropagate(inputs, weights, bias, prediction, expected_output)
+        assert np.allclose(weight_grads, 0.0)
+        assert np.allclose(bias_grads, 0.0)
+
+    def test_positive_error_produces_negative_gradients(self):
+        """When prediction < expected, dl_da is negative (gradient should push weights up)"""
+        inputs = np.array([1.0])
+        weights = np.array([[1.0]])
+        bias = np.array([0.0])
+        prediction = np.array([0.5])
+        expected_output = np.array([1.0])
+        p = Perceptron(ActivationTypeIds.RELU)
+        weight_grads, bias_grads = p.backpropagate(inputs, weights, bias, prediction, expected_output)
+        # dl_da = -2 * (1.0 - 0.5) = -1.0, relu derivative at z=1 is 1
+        # gradient = -1.0 * 1.0 = -1.0
+        assert weight_grads[0][0] < 0
+        assert bias_grads[0] < 0
+
+    def test_negative_error_produces_positive_gradients(self):
+        """When prediction > expected, dl_da is positive (gradient should push weights down)"""
+        inputs = np.array([1.0])
+        weights = np.array([[1.0]])
+        bias = np.array([0.0])
+        prediction = np.array([1.5])
+        expected_output = np.array([1.0])
+        p = Perceptron(ActivationTypeIds.RELU)
+        weight_grads, bias_grads = p.backpropagate(inputs, weights, bias, prediction, expected_output)
+        assert weight_grads[0][0] > 0
+        assert bias_grads[0] > 0
+
+
+# --- Optimize weights tests ---
+
+class TestPerceptronOptimizeWeights:
+
+    def test_weights_unchanged_with_zero_gradients(self):
+        """Zero gradients should not change weights"""
+        weights = np.array([[0.5], [0.5]])
+        bias = np.array([0.0])
+        weight_grads = np.array([[0.0], [0.0]])
+        bias_grads = np.array([0.0])
+        p = Perceptron(ActivationTypeIds.RELU)
+        new_weights, new_bias = p.optimize_weights(weights, bias, weight_grads, bias_grads, 0.01)
+        assert np.array_equal(new_weights, weights)
+        assert np.array_equal(new_bias, bias)
+
+    def test_weights_decrease_with_positive_gradients(self):
+        """Positive gradients should decrease weights (moving opposite to gradient)"""
+        weights = np.array([[1.0]])
+        bias = np.array([1.0])
+        weight_grads = np.array([[0.5]])
+        bias_grads = np.array([0.5])
+        p = Perceptron(ActivationTypeIds.RELU)
+        new_weights, new_bias = p.optimize_weights(weights, bias, weight_grads, bias_grads, 0.1)
+        assert new_weights[0][0] < weights[0][0]
+        assert new_bias[0] < bias[0]
+
+    def test_weights_increase_with_negative_gradients(self):
+        """Negative gradients should increase weights"""
+        weights = np.array([[1.0]])
+        bias = np.array([1.0])
+        weight_grads = np.array([[-0.5]])
+        bias_grads = np.array([-0.5])
+        p = Perceptron(ActivationTypeIds.RELU)
+        new_weights, new_bias = p.optimize_weights(weights, bias, weight_grads, bias_grads, 0.1)
+        assert new_weights[0][0] > weights[0][0]
+        assert new_bias[0] > bias[0]
+
+    def test_learning_rate_scales_update(self):
+        """Higher learning rate should produce larger weight changes"""
+        weights = np.array([[1.0]])
+        bias = np.array([1.0])
+        weight_grads = np.array([[1.0]])
+        bias_grads = np.array([1.0])
+        p = Perceptron(ActivationTypeIds.RELU)
+
+        w_small, b_small = p.optimize_weights(weights, bias, weight_grads, bias_grads, 0.01)
+        w_large, b_large = p.optimize_weights(weights, bias, weight_grads, bias_grads, 0.1)
+
+        # larger learning rate = bigger change from original
+        assert abs(w_large[0][0] - weights[0][0]) > abs(w_small[0][0] - weights[0][0])
+        assert abs(b_large[0] - bias[0]) > abs(b_small[0] - bias[0])
