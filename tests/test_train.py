@@ -81,6 +81,70 @@ class TestTrain:
         # loss at end should be less than loss at start
         assert losses[-1] < losses[0]
 
+    def test_mini_batch_training(self):
+        """
+        Same AND gate but with mini-batch gradient descent (batch_size=2).
+        Gradients are accumulated over 2 samples before updating weights.
+        """
+        model = MLP(
+            layer_sizes=[2, 4, 2],
+            activation_function_type=ActivationTypeIds.LEAKY_RELU
+        )
+
+        training_data = np.array([
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+        ])
+
+        labels = np.array([
+            [1.0, 0.0],  # class 0 (false)
+            [1.0, 0.0],  # class 0 (false)
+            [1.0, 0.0],  # class 0 (false)
+            [0.0, 1.0],  # class 1 (true)
+        ])
+
+        results = train(model, training_data, labels, epochs=5000, learning_rate=0.05, batch_size=2)
+
+        losses = results['loss']
+        assert losses[-1] < losses[0]
+
+        pred_true = model.feedforward(np.array([1.0, 1.0]))
+        assert pred_true[1] > pred_true[0]
+
+    def test_sgd_training(self):
+        """
+        Same AND gate but with SGD (batch_size=1).
+        Weights update after every single sample.
+        """
+        model = MLP(
+            layer_sizes=[2, 4, 2],
+            activation_function_type=ActivationTypeIds.LEAKY_RELU
+        )
+
+        training_data = np.array([
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+        ])
+
+        labels = np.array([
+            [1.0, 0.0],  # class 0 (false)
+            [1.0, 0.0],  # class 0 (false)
+            [1.0, 0.0],  # class 0 (false)
+            [0.0, 1.0],  # class 1 (true)
+        ])
+
+        results = train(model, training_data, labels, epochs=5000, learning_rate=0.05, batch_size=1)
+
+        losses = results['loss']
+        assert losses[-1] < losses[0]
+
+        pred_true = model.feedforward(np.array([1.0, 1.0]))
+        assert pred_true[1] > pred_true[0]
+
     @pytest.mark.skip(reason="visual testing")
     def test_visual_loss(self):
         """Visual test to plot loss over training"""
