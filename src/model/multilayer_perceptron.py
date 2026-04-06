@@ -1,6 +1,8 @@
 from model.base_model import BaseModel
 from utils.activation_function_ids import ActivationTypeIds
 from utils.activation_functions import ActivationFunctions
+from utils.optimizer_type_ids import OptimizerTypeIds
+from utils.optimizers import Optimizer
 import numpy as np
 import numpy.typing as npt
 
@@ -9,13 +11,17 @@ class MLP(BaseModel):
     def __init__(
         self,
         layer_sizes: list, # [neurons in input layer, hidden layer 1, ..., output layer]
-        activation_function_type = ActivationTypeIds.LEAKY_RELU
+        activation_function_type = ActivationTypeIds.LEAKY_RELU,
+        optimizer_type = OptimizerTypeIds.SGD
     ):
         self.layer_sizes = layer_sizes
         self.activation_function = ActivationFunctions(activation_function_type)
 
         # create weight matrices and bias vectors for each layer connection
         self.weights, self.biases = self._create_layer_matrices(layer_sizes)
+
+        # optimizer
+        self.optimizer = Optimizer(optimizer_type, self.weights, self.biases)
 
         # stored during feedforward, used during backprop
         self.activations = []
@@ -103,15 +109,11 @@ class MLP(BaseModel):
         **kwargs
     ):
         """
-        Update weights using SGD: move opposite to gradient at a given learning rate.
+        Update weights using the chosen optimizer (SGD, Adam, etc.).
         Updates internal weights/biases directly.
         """
         try:
-            for i in range(len(self.weights)):
-                self.weights[i] -= learning_rate * weight_gradients[i]
-                self.biases[i] -= learning_rate * bias_gradients[i]
-
-            return self.weights, self.biases
+            return self.optimizer.update(self.weights, self.biases, weight_gradients, bias_gradients, learning_rate)
 
         except Exception as e:
             print(f"Error in optimize_weights: {e}")
