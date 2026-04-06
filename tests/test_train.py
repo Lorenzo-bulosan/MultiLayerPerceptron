@@ -25,7 +25,7 @@ class TestTrain:
         MLP architecture: 2 inputs → 4 hidden → 2 outputs
         """
         model = MLP(
-            layer_sizes=[2, 4, 2],
+            layer_sizes=[2, 8, 2],
             activation_function_type=ActivationTypeIds.LEAKY_RELU
         )
 
@@ -87,7 +87,7 @@ class TestTrain:
         Gradients are accumulated over 2 samples before updating weights.
         """
         model = MLP(
-            layer_sizes=[2, 4, 2],
+            layer_sizes=[2, 8, 2],
             activation_function_type=ActivationTypeIds.LEAKY_RELU
         )
 
@@ -105,7 +105,7 @@ class TestTrain:
             [0.0, 1.0],  # class 1 (true)
         ])
 
-        results = train(model, training_data, labels, epochs=5000, learning_rate=0.05, batch_size=2)
+        results = train(model, training_data, labels, epochs=5000, learning_rate=0.1, batch_size=2)
 
         losses = results['loss']
         assert losses[-1] < losses[0]
@@ -119,7 +119,7 @@ class TestTrain:
         Weights update after every single sample.
         """
         model = MLP(
-            layer_sizes=[2, 4, 2],
+            layer_sizes=[2, 8, 2],
             activation_function_type=ActivationTypeIds.LEAKY_RELU
         )
 
@@ -137,7 +137,7 @@ class TestTrain:
             [0.0, 1.0],  # class 1 (true)
         ])
 
-        results = train(model, training_data, labels, epochs=5000, learning_rate=0.05, batch_size=1)
+        results = train(model, training_data, labels, epochs=5000, learning_rate=0.1, batch_size=1)
 
         losses = results['loss']
         assert losses[-1] < losses[0]

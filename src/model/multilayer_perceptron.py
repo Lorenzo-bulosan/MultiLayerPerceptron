@@ -31,11 +31,16 @@ class MLP(BaseModel):
             self.logits = []
 
             a = inputs
-            for w, b in zip(self.weights, self.biases):
+            for i, (w, b) in enumerate(zip(self.weights, self.biases)):
                 # pre-activation: z = a · W + b
                 z = np.dot(a, w) + b
-                # post-activation: a = activation(z)
-                a = self.activation_function.apply(z)
+
+                # post-activation: softmax on output layer, chosen activation on hidden layers
+                is_output_layer = (i == len(self.weights) - 1)
+                if is_output_layer:
+                    a = self._softmax(z)
+                else:
+                    a = self.activation_function.apply(z)
 
                 self.logits.append(z)
                 self.activations.append(a)
@@ -60,19 +65,25 @@ class MLP(BaseModel):
             weight_grads = []
             bias_grads = []
 
-            # dL/da — start with output error
+            # dL/da — MSE gradient: -2(y - ŷ)
             dl_da = -2 * (expected_output - prediction)
 
             # go through layers in reverse
             for i in reversed(range(len(self.weights))):
-                # da/dz — derivative of activation at this layer
-                da_dz = self.activation_function.derivative(self.logits[i])
+                is_output_layer = (i == len(self.weights) - 1)
 
-                # combined gradient: dL/dz = dL/da * da/dz
-                gradient = dl_da * da_dz
+                if is_output_layer:
+                    # softmax Jacobian: da/dz = diag(a) - a·aᵀ
+                    a = self.activations[i + 1]
+                    jacobian = np.diagflat(a) - np.outer(a, a)
+                    gradient = dl_da @ jacobian
+                else:
+                    # element-wise activation derivative for hidden layers
+                    da_dz = self.activation_function.derivative(self.logits[i])
+                    gradient = dl_da * da_dz
 
                 # weight gradients: outer product of this layer's input and gradient
-                weight_grads.insert(0, np.outer(self.activations[i], gradient))
+                weight_grads.insert(0, np.outer(self.activations[i], gradient)) # the dot products sums, outer doesnt. Also insert because we are going on reverse
                 bias_grads.insert(0, gradient)
 
                 # propagate error back to previous layer
@@ -107,6 +118,14 @@ class MLP(BaseModel):
             raise
 
     # private functions
+    def _softmax(self, z: npt.NDArray[np.float64]):
+        """
+        Softmax: converts raw logits into probabilities that sum to 1.
+        Subtracts max for numerical stability (prevents overflow in exp).
+        """
+        exp_z = np.exp(z - np.max(z))
+        return exp_z / np.sum(exp_z)
+
     def _create_layer_matrices(self, layer_sizes: list):
         """
         Create weight matrices and bias vectors for each layer connection.

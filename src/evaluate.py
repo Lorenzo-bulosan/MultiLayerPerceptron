@@ -21,7 +21,7 @@ def evaluate(
         prediction = model.feedforward(inputs)
         predictions.append(prediction)
 
-        # loss
+        # loss (MSE)
         error = np.sum((expected_output - prediction)**2)
         total_loss += error
 
