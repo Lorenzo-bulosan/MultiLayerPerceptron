@@ -71,8 +71,9 @@ class MLP(BaseModel):
             weight_grads = []
             bias_grads = []
 
-            # dL/da — MSE gradient: -2(y - ŷ)
-            dl_da = -2 * (expected_output - prediction)
+            # dL/da — MSE gradient: -2/n * (y - ŷ)
+            n = len(expected_output)
+            dl_da = -2 / n * (expected_output - prediction)
 
             # go through layers in reverse
             for i in reversed(range(len(self.weights))):

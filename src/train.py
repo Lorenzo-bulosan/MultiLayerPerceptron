@@ -38,7 +38,7 @@ def train(
             model.optimize_weights(weight_grads, bias_grads, learning_rate)
 
             # track total loss (MSE)
-            error = np.sum((expected_output - prediction)**2)
+            error = np.mean((expected_output - prediction)**2)
             total_loss += error
 
         results_to_analyse['loss'].append(total_loss)
