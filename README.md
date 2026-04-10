@@ -37,11 +37,18 @@ pip freeze > requirements.txt
 deactivate
 ```
 
-### Running tests
+# Running tests
 ```bash
 source venv/Scripts/activate
 pip install -r requirements.txt
 bash run_tests.sh
+```
+
+# Running Evaluation.py
+```bash
+source venv/Scripts/activate
+pip install -r requirements.txt
+bash run_evaluate.sh
 ```
 
 # VS Code tips
