@@ -94,7 +94,7 @@ def plot_results(results, test_labels, path_to_save_figures, train_results=None,
         _plot_confusion(axes[2], confusion2, num_classes2, f"PyTorch MLP (Accuracy: {results2['accuracy']:.2%})")
 
     plt.tight_layout()
-    fig.savefig(os.path.join(path_to_save_figures, "DataToClasify_Moon.png"), dpi=300, bbox_inches="tight")
+    fig.savefig(os.path.join(path_to_save_figures, "ErrorGraphAndConfusionMatrix.png"), dpi=300, bbox_inches="tight")
     plt.show()
 
 
@@ -108,7 +108,7 @@ def plot_moon_data(X, y, path_to_save_figures):
     ax.set_ylabel("x2")
     ax.legend()
     plt.tight_layout()
-    fig.savefig(os.path.join(path_to_save_figures, "ErrorGraphAndConfusionMatrix.png"), dpi=300, bbox_inches="tight")
+    fig.savefig(os.path.join(path_to_save_figures, "DataToClasify_Moon.png"), dpi=300, bbox_inches="tight")
     plt.show(block=False)
 
 
