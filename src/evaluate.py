@@ -69,7 +69,7 @@ def _plot_confusion(ax, confusion, num_classes, title):
                     color='white' if confusion[i][j] > confusion.max() / 2 else 'black', fontsize=14)
 
 
-def plot_results(results, test_labels, train_results=None, results2=None, train_results2=None):
+def plot_results(results, test_labels, path_to_save_figures, train_results=None, results2=None, train_results2=None):
     """Plot combined loss curve and confusion matrices in a 1x3 layout."""
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
@@ -94,10 +94,11 @@ def plot_results(results, test_labels, train_results=None, results2=None, train_
         _plot_confusion(axes[2], confusion2, num_classes2, f"PyTorch MLP (Accuracy: {results2['accuracy']:.2%})")
 
     plt.tight_layout()
+    fig.savefig(os.path.join(path_to_save_figures, "DataToClasify_Moon.png"), dpi=300, bbox_inches="tight")
     plt.show()
 
 
-def plot_moon_data(X, y):
+def plot_moon_data(X, y, path_to_save_figures):
     """Scatter plot of the raw moons dataset, colored by class."""
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(X[y == 0, 0], X[y == 0, 1], color='red', label='Class 0', edgecolors='black', s=40, alpha=0.7)
@@ -107,6 +108,7 @@ def plot_moon_data(X, y):
     ax.set_ylabel("x2")
     ax.legend()
     plt.tight_layout()
+    fig.savefig(os.path.join(path_to_save_figures, "ErrorGraphAndConfusionMatrix.png"), dpi=300, bbox_inches="tight")
     plt.show(block=False)
 
 
@@ -118,6 +120,7 @@ if __name__ == "__main__":
 
     src_dir = os.path.dirname(__file__)
     sys.path.insert(0, src_dir)
+    path_to_save_figures = os.path.join(src_dir, "..", "output")
 
     from model.multilayer_perceptron import MLP
     from model.pytorch.mlp_pytorch import MLP_PyTorch
@@ -126,7 +129,7 @@ if __name__ == "__main__":
 
     # --- generate moons dataset ---
     X, y = make_moons(n_samples=1000, noise=0.3, random_state=42)
-    plot_moon_data(X, y)
+    plot_moon_data(X, y, path_to_save_figures)
 
     # convert labels to one-hot: 0 → [1, 0], 1 → [0, 1]
     labels = np.zeros((len(y), 2))
@@ -179,4 +182,4 @@ if __name__ == "__main__":
     print(f"Correct:   {results2['correct']}/{results2['total_samples']}")
 
     # --- plot both side by side ---
-    plot_results(results, y_test.tolist(), train_results, results2, train_results2)
+    plot_results(results, y_test.tolist(), path_to_save_figures, train_results, results2, train_results2)
