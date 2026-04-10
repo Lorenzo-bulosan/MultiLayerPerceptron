@@ -1,33 +1,57 @@
+# Output
+
+### Data to Classify (Moon Dataset)
+![Data to Classify](output/DataToClasify_Moon.png)
+
+### Error Graph and Confusion Matrix
+![Error Graph and Confusion Matrix](output/ErrorGraphAndConfusionMatrix.png)
+
 # Prepare environment
 ### Create virtual environment
+```bash
 python -m venv venv
+```
 
 ### Windows git bash
+```bash
 source venv/Scripts/activate
+```
 
 ### macOS/Linux
+```bash
 source venv/bin/activate
+```
 
 ### Install requirements
+```bash
 pip install -r requirements.txt
+```
 
 ### Save dependencies
+```bash
 pip freeze > requirements.txt
+```
 
 ### Deactivate
+```bash
 deactivate
+```
 
 ### Running tests
+```bash
 source venv/Scripts/activate
 pip install -r requirements.txt
-bash run_tests.sh           
+bash run_tests.sh
+```
 
 # VS Code tips
 ### Opening markdown preview 
-Ctrl + Shift + V
+`Ctrl + Shift + V`
 
 ### Opening both markdown preview side by side with source file
-Ctrl + K V
+`Ctrl + K V`
+
+
 
 # Insights
 
